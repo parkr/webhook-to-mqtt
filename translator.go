@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type mqttClient interface {
@@ -20,9 +21,14 @@ func NewHandler(client mqttClient) http.Handler {
 }
 
 func (h *webhooktomqttHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Printf("received request: %s %s", r.Method, r.URL.Path)
+	log.Printf("received request\tmethod=%s path=%s", r.Method, r.URL.Path)
 
-	urlpath := strings.TrimPrefix(r.URL.Path, "/api/")
+	if r.Method != http.MethodPost {
+		http.Error(w, `{"status":"error"}`, http.StatusMethodNotAllowed)
+		return
+	}
+
+	topic := strings.TrimPrefix(r.URL.Path, "/api/")
 
 	payload, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -31,8 +37,13 @@ func (h *webhooktomqttHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	h.client.Publish(urlpath, payload)
+	log.Printf("publishing payload\ttopic=%s bytes=%d", topic, len(payload))
+	startTime := time.Now()
+
+	h.client.Publish(topic, payload)
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(`{"status":"success"}`))
+
+	log.Printf("published payload\ttopic=%s elapsed=%v", topic, time.Since(startTime))
 }
