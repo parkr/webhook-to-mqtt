@@ -15,10 +15,15 @@ type mqttClient interface {
 type webhooktomqttHandler struct {
 	client mqttClient
 	prefix string
+	debug  bool
 }
 
-func NewHandler(client mqttClient, prefix string) http.Handler {
-	return &webhooktomqttHandler{client: client, prefix: prefix}
+func NewHandler(client mqttClient, prefix string, debug bool) http.Handler {
+	return &webhooktomqttHandler{
+		client: client,
+		prefix: prefix,
+		debug:  debug,
+	}
 }
 
 func (h *webhooktomqttHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -40,6 +45,9 @@ func (h *webhooktomqttHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	}
 
 	log.Printf("publishing payload\ttopic=%s bytes=%d", topic, len(payload))
+	if h.debug {
+		log.Printf("the payload:\t%q", strings.TrimSpace(string(payload)))
+	}
 	startTime := time.Now()
 
 	h.client.Publish(topic, payload)

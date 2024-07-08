@@ -17,6 +17,8 @@ func main() {
 	flag.StringVar(&httpListen, "http", ":8080", "HTTP listen address")
 	var mqttClientID string
 	flag.StringVar(&mqttClientID, "client-id", "webhook-to-mqtt", "MQTT client ID")
+	var debug bool
+	flag.BoolVar(&debug, "debug", false, "Enable debug logging")
 	flag.Parse()
 
 	client := mqtt.NewClient(mqttServer)
@@ -29,7 +31,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	httpPrefix := "/publish/"
-	mux.Handle(httpPrefix, webhooktomqtt.NewHandler(client, httpPrefix))
+	mux.Handle(httpPrefix, webhooktomqtt.NewHandler(client, httpPrefix, debug))
 
 	if err := http.ListenAndServe(httpListen, mux); err != nil {
 		log.Fatalf("error serving HTTP: %s", err)
