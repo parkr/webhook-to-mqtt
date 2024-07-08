@@ -21,10 +21,10 @@ func main() {
 
 	client := mqtt.NewClient(mqttServer)
 	client.ClientID = mqttClientID
-	if err := client.Connect(make(chan<- mqtt.Message, 100)); err != nil {
-		log.Fatalf("error connecting to MQTT server(%s): %s", mqttServer, err)
-	}
-	defer client.Disconnect()
+	client.Messages = make(chan<- mqtt.Message, 100)
+	clientManager := mqtt.NewClientManager(client, nil)
+	clientManager.Start()
+	defer clientManager.Stop()
 
 	mux := http.NewServeMux()
 
