@@ -21,14 +21,14 @@ func main() {
 
 	client := mqtt.NewClient(mqttServer)
 	client.ClientID = mqttClientID
-	client.Messages = make(chan<- mqtt.Message, 100)
+	client.Messages = make(chan mqtt.Message)
 	clientManager := mqtt.NewClientManager(client, nil)
 	clientManager.Start()
 	defer clientManager.Stop()
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/api/", webhooktomqtt.NewHandler(client))
+	mux.Handle("/publish/", webhooktomqtt.NewHandler(client))
 
 	if err := http.ListenAndServe(httpListen, mux); err != nil {
 		log.Fatalf("error serving HTTP: %s", err)
