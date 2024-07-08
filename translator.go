@@ -14,10 +14,11 @@ type mqttClient interface {
 
 type webhooktomqttHandler struct {
 	client mqttClient
+	prefix string
 }
 
-func NewHandler(client mqttClient) http.Handler {
-	return &webhooktomqttHandler{client: client}
+func NewHandler(client mqttClient, prefix string) http.Handler {
+	return &webhooktomqttHandler{client: client, prefix: prefix}
 }
 
 func (h *webhooktomqttHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +29,7 @@ func (h *webhooktomqttHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	topic := strings.TrimPrefix(r.URL.Path, "/api/")
+	topic := strings.TrimPrefix(r.URL.Path, h.prefix)
 
 	payload, err := io.ReadAll(r.Body)
 	if err != nil {

@@ -25,9 +25,9 @@ func (m *mockClient) Publish(topic string, payload []byte) {
 
 func TestServeHTTP(t *testing.T) {
 	client := &mockClient{}
-	h := NewHandler(client)
+	h := NewHandler(client, "/publish/")
 	body := strings.NewReader(`{"hello": "world"}`)
-	req, err := http.NewRequest(http.MethodPost, "/api/mypod", body)
+	req, err := http.NewRequest(http.MethodPost, "/publish/mypod", body)
 	assert.NoError(t, err)
 	recorder := httptest.NewRecorder()
 

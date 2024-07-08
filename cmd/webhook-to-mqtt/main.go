@@ -28,7 +28,8 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/publish/", webhooktomqtt.NewHandler(client))
+	httpPrefix := "/publish/"
+	mux.Handle(httpPrefix, webhooktomqtt.NewHandler(client, httpPrefix))
 
 	if err := http.ListenAndServe(httpListen, mux); err != nil {
 		log.Fatalf("error serving HTTP: %s", err)
