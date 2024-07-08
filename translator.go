@@ -22,7 +22,8 @@ func NewHandler(client mqttClient, prefix string) http.Handler {
 }
 
 func (h *webhooktomqttHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Printf("received request\tmethod=%s path=%s", r.Method, r.URL.Path)
+	log.Printf("received request\tmethod=%s path=%s content-type=%s",
+		r.Method, r.URL.Path, r.Header.Get("Content-Type"))
 
 	if r.Method != http.MethodPost {
 		http.Error(w, `{"status":"error"}`, http.StatusMethodNotAllowed)
