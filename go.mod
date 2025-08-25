@@ -3,7 +3,7 @@ module github.com/parkr/webhook-to-mqtt
 go 1.22.4
 
 require (
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.0
 	gosrc.io/mqtt v0.0.0-20190226142036-a2ebb16fa266
 )
 
